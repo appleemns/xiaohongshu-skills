@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书小店数据分析平台</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --red: #FF2442; --red-soft: #FFF0F2; --ink: #1f2329; --gray: #6b7280;
+    --line: #e5e7eb; --bg: #f6f7f9; --card: #ffffff; --green: #0a9e6a; --amber: #d97706; --blue: #2563eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); }
+  header { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 20px; font-weight: 700; color: var(--red); }
+  header .sub { color: var(--gray); font-size: 13px; }
+  header .meta { margin-left: auto; font-size: 12px; color: var(--gray); text-align: right; }
+  nav { display: flex; gap: 4px; padding: 10px 24px 0; background: #fff; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  nav button { border: none; background: none; padding: 10px 16px; font-size: 14px; color: var(--gray); cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+  nav button.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+  main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+  section.tab { display: none; }
+  section.tab.active { display: block; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .kpi .label { font-size: 12px; color: var(--gray); }
+  .kpi .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .kpi .delta { font-size: 12px; margin-top: 4px; }
+  .kpi .delta.up { color: var(--green); } .kpi .delta.down { color: var(--red); }
+  .kpi .delta.flat { color: var(--gray); }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .chart-box { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .chart-box.full { grid-column: 1 / -1; }
+  .chart-box h3 { font-size: 14px; margin-bottom: 8px; color: var(--ink); }
+  .chart { width: 100%; height: 300px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  th { color: var(--gray); font-weight: 600; background: #fafafa; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+  .badge.high { background: #fde8e8; color: #b91c1c; } .badge.mid { background: #fef3c7; color: #b45309; } .badge.low { background: #e6f7ef; color: #0a9e6a; }
+  .alert-item { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--gray); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+  .alert-item.lv-high { border-left-color: var(--red); } .alert-item.lv-mid { border-left-color: var(--amber); } .alert-item.lv-low { border-left-color: var(--blue); }
+  .alert-item .tag { font-size: 12px; color: var(--gray); white-space: nowrap; }
+  .empty { color: var(--gray); text-align: center; padding: 40px 0; font-size: 14px; }
+  .import-area { background: var(--card); border: 1px dashed #d1d5db; border-radius: 10px; padding: 24px; text-align: center; margin-bottom: 16px; }
+  .import-area input[type=file] { margin: 8px auto; }
+  .btn { border: none; border-radius: 8px; padding: 8px 18px; font-size: 14px; cursor: pointer; background: var(--red); color: #fff; font-family: inherit; }
+  .btn.gray { background: #e5e7eb; color: var(--ink); }
+  .btn.blue { background: var(--blue); color: #fff; }
+  .hint { font-size: 12px; color: var(--gray); margin-top: 8px; line-height: 1.7; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>小红书小店数据分析平台</h1>
+  <span class="sub">AI 员工团队 · 每日自动更新</span>
+  <div class="meta"><div id="storeMeta">店铺：—</div><div id="dataSourceMeta">数据：示例数据</div></div>
+</header>
+<nav id="tabs">
+  <button class="active" data-tab="overview">经营总览</button>
+  <button data-tab="products">商品表现</button>
+  <button data-tab="notes">笔记表现</button>
+  <button data-tab="fans">粉丝账号</button>
+  <button data-tab="influencers">达人合作</button>
+  <button data-tab="alerts">预警中心</button>
+  <button data-tab="import">数据导入</button>
+</nav>
+<main>
+
+<!-- ============ 经营总览 ============ -->
+<section class="tab active" id="tab-overview">
+  <div class="cards" id="kpiCards"></div>
+  <div class="chart-grid">
+    <div class="chart-box full"><h3>GMV 趋势（近 14 天）</h3><div class="chart" id="chartGmv"></div></div>
+    <div class="chart-box"><h3>订单量与客单价</h3><div class="chart" id="chartOrders"></div></div>
+    <div class="chart-box"><h3>流量来源</h3><div class="chart" id="chartTraffic"></div></div>
+  </div>
+</section>
+
+<!-- ============ 商品表现 ============ -->
+<section class="tab" id="tab-products">
+  <div class="chart-grid">
+    <div class="chart-box"><h3>商品 Top10（按 GMV）</h3><div class="chart" id="chartProdTop"></div></div>
+    <div class="chart-box"><h3>商品 Bottom10（低 CTR）</h3><div class="chart" id="chartProdBottom"></div></div>
+    <div class="chart-box full"><h3>曝光 × 点击分布（气泡大小 = 订单量）</h3><div class="chart" id="chartProdScatter"></div></div>
+    <div class="chart-box full"><h3>商品明细</h3><div style="overflow-x:auto" id="prodTable"></div></div>
+  </div>
+</section>
+
+<!-- ============ 笔记表现 ============ -->
+<section class="tab" id="tab-notes">
+  <div class="chart-grid">
+    <div class="chart-box full"><h3>笔记曝光 / 阅读趋势</h3><div class="chart" id="chartNoteTrend"></div></div>
+    <div class="chart-box"><h3>笔记互动构成（赞/藏/评/转）</h3><div class="chart" id="chartNoteInteract"></div></div>
+    <div class="chart-box"><h3>图文 vs 视频 表现对比</h3><div class="chart" id="chartNoteType"></div></div>
+    <div class="chart-box full"><h3>笔记明细</h3><div style="overflow-x:auto" id="noteTable"></div></div>
+  </div>
+</section>
+
+<!-- ============ 粉丝账号 ============ -->
+<section class="tab" id="tab-fans">
+  <div class="chart-grid">
+    <div class="chart-box full"><h3>粉丝增长</h3><div class="chart" id="chartFans"></div></div>
+    <div class="chart-box"><h3>粉丝性别分布</h3><div class="chart" id="chartFansGender"></div></div>
+    <div class="chart-box"><h3>粉丝年龄分布</h3><div class="chart" id="chartFansAge"></div></div>
+  </div>
+</section>
+
+<!-- ============ 达人合作 ============ -->
+<section class="tab" id="tab-influencers">
+  <div class="chart-grid">
+    <div class="chart-box full"><h3>达人合作漏斗（邀约 → 回复 → 寄样 → 内容 → 出单）</h3><div class="chart" id="chartFunnel"></div></div>
+    <div class="chart-box full"><h3>达人明细</h3><div style="overflow-x:auto" id="inflTable"></div></div>
+  </div>
+</section>
+
+<!-- ============ 预警中心 ============ -->
+<section class="tab" id="tab-alerts">
+  <div id="alertList"></div>
+  <div class="hint">预警由店长每日按 xhs-store-dashboard 技能规则生成并写入 data/dashboard.json 的 alerts 字段；本页自动汇总展示。</div>
+</section>
+
+<!-- ============ 数据导入 ============ -->
+<section class="tab" id="tab-import">
+  <div class="import-area">
+    <h3>导入数据（JSON / CSV）</h3>
+    <input type="file" id="fileInput" accept=".json,.csv">
+    <div style="margin: 10px 0;"><button class="btn" id="btnSave">保存到本地（浏览器缓存）</button> <button class="btn blue" id="btnExport">导出当前数据 JSON</button> <button class="btn gray" id="btnReset">恢复示例数据</button></div>
+    <div class="hint">
+      推荐流程：在团队目录运行 <code>python serve.py</code> 后打开本页，将自动读取 <code>data/dashboard.json</code>；<br>
+      或手动导入：<b>①</b> 选择店长导出的 dashboard.json（完整结构见 data/README.md）；<b>②</b> 或导入千帆导出 CSV（列含 date/gmv/orders 归入经营序列，sku/name/impressions 归入商品，title/reads 归入笔记）。<br>
+      导入后点击「保存到本地」即写入浏览器缓存，下次打开自动加载。
+    </div>
+  </div>
+  <div class="chart-box full"><h3>当前数据预览</h3><div style="overflow-x:auto" id="dataPreview"></div></div>
+</section>
+
+</main>
+<script>
+/* ========== 示例数据（仅供预览，正式数据以导入/ dashboard.json 为准） ========== */
+const SAMPLE = {
+  store: { name: "示例店铺（待更新）", type: "企业店", category: "待确认", updated: "2026-10-02", data_source: "示例数据" },
+  daily: [
+    {date:"2026-09-19",gmv:1860,orders:46,aov:40.4,refund_rate:0.04,visitors:920,conversion:0.05,followers_gained:35},
+    {date:"2026-09-20",gmv:2140,orders:52,aov:41.2,refund_rate:0.03,visitors:1080,conversion:0.048,followers_gained:42},
+    {date:"2026-09-21",gmv:1980,orders:50,aov:39.6,refund_rate:0.05,visitors:1010,conversion:0.05,followers_gained:38},
+    {date:"2026-09-22",gmv:2450,orders:58,aov:42.2,refund_rate:0.03,visitors:1240,conversion:0.047,followers_gained:51},
+    {date:"2026-09-23",gmv:2320,orders:55,aov:42.2,refund_rate:0.04,visitors:1180,conversion:0.047,followers_gained:46},
+    {date:"2026-09-24",gmv:2780,orders:63,aov:44.1,refund_rate:0.03,visitors:1360,conversion:0.046,followers_gained:58},
+    {date:"2026-09-25",gmv:3050,orders:70,aov:43.6,refund_rate:0.03,visitors:1520,conversion:0.046,followers_gained:64},
+    {date:"2026-09-26",gmv:2900,orders:66,aov:43.9,refund_rate:0.04,visitors:1480,conversion:0.045,followers_gained:55},
+    {date:"2026-09-27",gmv:3420,orders:78,aov:43.8,refund_rate:0.03,visitors:1710,conversion:0.046,followers_gained:72},
+    {date:"2026-09-28",gmv:3680,orders:82,aov:44.9,refund_rate:0.03,visitors:1860,conversion:0.044,followers_gained:80},
+    {date:"2026-09-29",gmv:3550,orders:79,aov:44.9,refund_rate:0.04,visitors:1800,conversion:0.044,followers_gained:74},
+    {date:"2026-09-30",gmv:4020,orders:90,aov:44.7,refund_rate:0.03,visitors:2040,conversion:0.044,followers_gained:88},
+    {date:"2026-10-01",gmv:4380,orders:96,aov:45.6,refund_rate:0.03,visitors:2260,conversion:0.042,followers_gained:95}
+  ],
+  traffic: [
+    {source:"搜索",value:38},{source:"推荐",value:34},{source:"关注",value:14},{source:"直播",value:8},{source:"其他",value:6}
+  ],
+  products: [
+    {sku:"sku001",name:"真丝发圈礼盒",impressions:48200,clicks:1680,ctr:3.49,orders:42,gmv:1890,stock:320,status:"在售"},
+    {sku:"sku002",name:"宋锦葫芦包挂饰",impressions:36100,clicks:1120,ctr:3.10,orders:35,gmv:1397,stock:180,status:"在售"},
+    {sku:"sku003",name:"卡皮巴拉毛绒挂件",impressions:29500,clicks:880,ctr:2.98,orders:28,gmv:1117,stock:60,status:"在售"},
+    {sku:"sku004",name:"手工编织手机挂绳",impressions:22800,clicks:620,ctr:2.72,orders:19,gmv:570,stock:240,status:"在售"},
+    {sku:"sku005",name:"国风刺绣香囊",impressions:19600,clicks:500,ctr:2.55,orders:15,gmv:525,stock:95,status:"在售"},
+    {sku:"sku006",name:"复古陶瓷杯垫套装",impressions:17800,clicks:430,ctr:2.42,orders:12,gmv:360,stock:130,status:"在售"},
+    {sku:"sku007",name:"ins风亚克力收纳盒",impressions:15100,clicks:340,ctr:2.25,orders:9,gmv:315,stock:200,status:"在售"},
+    {sku:"sku008",name:"帆布托特包",impressions:13200,clicks:280,ctr:2.12,orders:8,gmv:280,stock:0,status:"缺货"},
+    {sku:"sku009",name:"珍珠发夹套装",impressions:41000,clicks:400,ctr:0.98,orders:6,gmv:180,stock:150,status:"在售"},
+    {sku:"sku010",name:"羊毛围巾",impressions:38000,clicks:340,ctr:0.89,orders:5,gmv:249,stock:110,status:"在售"}
+  ],
+  notes: [
+    {note_id:"n01",title:"真丝发圈测评｜通勤三天不炸毛",type:"图文",impressions:128000,reads:11800,likes:980,comments:120,collects:860,shares:150,fans_gained:120,has_product_card:true,date:"2026-10-01"},
+    {note_id:"n02",title:"给妈妈挑的礼物清单（附店铺）",type:"图文",impressions:86000,reads:7600,likes:620,comments:88,collects:540,shares:90,fans_gained:86,has_product_card:true,date:"2026-09-30"},
+    {note_id:"n03",title:"开箱！宋锦葫芦包挂饰实拍",type:"视频",impressions:54000,reads:4200,likes:310,comments:46,collects:180,shares:40,fans_gained:42,has_product_card:true,date:"2026-09-29"},
+    {note_id:"n04",title:"打工人桌面好物合集",type:"图文",impressions:48000,reads:3900,likes:260,comments:35,collects:320,shares:28,fans_gained:35,has_product_card:false,date:"2026-09-28"},
+    {note_id:"n05",title:"国风香囊真的百搭吗",type:"视频",impressions:31000,reads:2100,likes:140,comments:22,collects:95,shares:12,fans_gained:18,has_product_card:true,date:"2026-09-27"}
+  ],
+  followers: [
+    {date:"2026-09-19",followers:3200,new_fans:35},{date:"2026-09-20",followers:3242,new_fans:42},
+    {date:"2026-09-21",followers:3280,new_fans:38},{date:"2026-09-22",followers:3331,new_fans:51},
+    {date:"2026-09-23",followers:3377,new_fans:46},{date:"2026-09-24",followers:3435,new_fans:58},
+    {date:"2026-09-25",followers:3499,new_fans:64},{date:"2026-09-26",followers:3554,new_fans:55},
+    {date:"2026-09-27",followers:3626,new_fans:72},{date:"2026-09-28",followers:3706,new_fans:80},
+    {date:"2026-09-29",followers:3780,new_fans:74},{date:"2026-09-30",followers:3868,new_fans:88},
+    {date:"2026-10-01",followers:3963,new_fans:95}
+  ],
+  fans_profile: { gender: [{name:"女",value:72},{name:"男",value:26},{name:"未知",value:2}], age: [{name:"18-24",value:28},{name:"25-34",value:45},{name:"35-44",value:18},{name:"45+",value:9}] },
+  influencers: [
+    {name:"达人A",platform:"蒲公英",stage:"出单",note_type:"报备",gmv:890,date:"2026-10-01"},
+    {name:"达人B",platform:"蒲公英",stage:"内容",note_type:"报备",gmv:0,date:"2026-10-01"},
+    {name:"达人C",platform:"私域",stage:"寄样",note_type:"非报备",gmv:0,date:"2026-09-30"},
+    {name:"达人D",platform:"蒲公英",stage:"回复",note_type:"报备",gmv:0,date:"2026-09-29"},
+    {name:"达人E",platform:"私域",stage:"邀约",note_type:"非报备",gmv:0,date:"2026-09-29"}
+  ],
+  alerts: [
+    {level:"高",category:"CTR",message:"sku009 珍珠发夹套装 曝光 4.1 万、CTR 0.98%（<1%）→ 美工出主图优化",sku:"sku009",date:"2026-10-01"},
+    {level:"高",category:"库存",message:"sku008 帆布托特包 已缺货 → 运营出补货清单",sku:"sku008",date:"2026-10-01"},
+    {level:"中",category:"笔记",message:"笔记 n05 阅读率 6.8%（低于均值）→ 封面/标题优化",sku:"",date:"2026-10-01"},
+    {level:"低",category:"粉丝",message:"近 7 日涨粉趋稳，建议运营复盘内容节奏",sku:"",date:"2026-10-01"}
+  ]
+};
+
+/* ========== 数据层 ========== */
+let DATA = null;
+let charts = {};
+const LS_KEY = "xhs_dashboard_data";
+const $ = id => document.getElementById(id);
+const num = v => (v === null || v === undefined || isNaN(Number(v))) ? 0 : Number(v);
+const fmt = v => (v === null || v === undefined || isNaN(Number(v))) ? "—" : Number(v).toLocaleString("zh-CN", {maximumFractionDigits: 2});
+const pct2 = v => (v === null || v === undefined || isNaN(Number(v))) ? "—" : (Number(v) * 100).toFixed(2) + "%";
+
+function normalize(d) {
+  d = d && typeof d === "object" ? d : {};
+  return {
+    store: d.store || {},
+    daily: Array.isArray(d.daily) ? d.daily : [],
+    traffic: Array.isArray(d.traffic) ? d.traffic : [],
+    products: Array.isArray(d.products) ? d.products : [],
+    notes: Array.isArray(d.notes) ? d.notes : [],
+    followers: Array.isArray(d.followers) ? d.followers : [],
+    fans_profile: d.fans_profile && typeof d.fans_profile === "object" ? d.fans_profile : {},
+    influencers: Array.isArray(d.influencers) ? d.influencers : [],
+    alerts: Array.isArray(d.alerts) ? d.alerts : []
+  };
+}
+
+async function initData() {
+  // 1) localStorage
+  try {
+    const ls = localStorage.getItem(LS_KEY);
+    if (ls) { DATA = normalize(JSON.parse(ls)); setMeta(); renderAll(); return; }
+  } catch (e) {}
+  // 2) fetch dashboard.json（经 serve.py 提供服务时可用）
+  try {
+    const res = await fetch("data/dashboard.json", {cache: "no-store"});
+    if (res.ok) {
+      const j = await res.json();
+      DATA = normalize(j); setMeta("dashboard.json"); renderAll(); return;
+    }
+  } catch (e) {}
+  // 3) 示例数据
+  DATA = normalize(SAMPLE); setMeta("示例数据"); renderAll();
+}
+
+function setMeta(src) {
+  $("storeMeta").textContent = "店铺：" + (DATA.store.name || "—") + " · " + (DATA.store.category || "类目待确认");
+  $("dataSourceMeta").textContent = "数据：" + (src || DATA.store.data_source || "示例数据") + " · 更新：" + (DATA.store.updated || "—");
+}
+
+/* ========== 图表工具 ========== */
+function chart(id) {
+  const el = $(id);
+  if (!el) return null;
+  if (charts[id]) { charts[id].dispose(); }
+  charts[id] = echarts.init(el);
+  return charts[id];
+}
+const AXIS = { axisLine: { lineStyle: { color: "#d1d5db" } }, axisLabel: { color: "#6b7280", fontSize: 11 } };
+const TOOLTIP = { trigger: "axis", backgroundColor: "#fff", borderColor: "#e5e7eb", textStyle: { color: "#1f2329", fontSize: 12 } };
+const RED = "#FF2442", BLUE = "#2563eb", GREEN = "#0a9e6a", AMBER = "#d97706";
+
+/* ========== 渲染：经营总览 ========== */
+function renderOverview() {
+  const d = DATA.daily;
+  // KPI
+  const last = d.length ? d[d.length - 1] : {};
+  const prev = d.length > 1 ? d[d.length - 2] : {};
+  const delta = (cur, base) => (base ? ((cur - base) / base) * 100 : 0);
+  const items = [
+    {label:"GMV", value:"¥" + fmt(last.gmv), d: delta(num(last.gmv), num(prev.gmv))},
+    {label:"订单量", value:fmt(last.orders), d: delta(num(last.orders), num(prev.orders))},
+    {label:"客单价", value:"¥" + fmt(last.aov), d: delta(num(last.aov), num(prev.aov))},
+    {label:"退款率", value:pct2(last.refund_rate), d: 0, flat:true},
+    {label:"访客数", value:fmt(last.visitors), d: delta(num(last.visitors), num(prev.visitors))},
+    {label:"转化率", value:pct2(last.conversion), d: 0, flat:true},
+    {label:"涨粉", value:fmt(last.followers_gained), d: delta(num(last.followers_gained), num(prev.followers_gained))}
+  ];
+  $("kpiCards").innerHTML = items.map(it => {
+    const cls = it.flat ? "flat" : (it.d > 0.001 ? "up" : (it.d < -0.001 ? "down" : "flat"));
+    const txt = it.flat ? "" : (cls === "up" ? "▲ " + it.d.toFixed(1) + "%" : cls === "down" ? "▼ " + Math.abs(it.d).toFixed(1) + "%" : "持平");
+    return `<div class="kpi"><div class="label">${it.label}</div><div class="value">${it.value}</div><div class="delta ${cls}">${txt}</div></div>`;
+  }).join("");
+
+  // GMV 趋势（近14天）
+  const recent = d.slice(-14);
+  let c = chart("chartGmv");
+  if (c) c.setOption({
+    tooltip: TOOLTIP,
+    grid: {left: 60, right: 20, top: 30, bottom: 30},
+    xAxis: {type:"category", data: recent.map(x=>x.date), ...AXIS},
+    yAxis: {type:"value", ...AXIS},
+    series: [{type:"line", name:"GMV", data: recent.map(x=>x.gmv), smooth:true, symbol:"circle", symbolSize:6,
+      lineStyle:{color:RED, width:3}, itemStyle:{color:RED},
+      areaStyle:{color: {type:"linear", x:0,y:0,x2:0,y2:1, colorStops:[{offset:0,color:"rgba(255,36,66,.18)"},{offset:1,color:"rgba(255,36,66,0)"}]}}}]
+  });
+
+  // 订单量 & 客单价
+  c = chart("chartOrders");
+  if (c) c.setOption({
+    tooltip: TOOLTIP,
+    legend:{data:["订单量","客单价"], top:0, textStyle:{color:"#6b7280", fontSize:11}},
+    grid: {left: 60, right: 60, top: 30, bottom: 30},
+    xAxis: {type:"category", data: recent.map(x=>x.date), ...AXIS},
+    yAxis: [{type:"value", name:"订单", ...AXIS}, {type:"value", name:"¥", ...AXIS}],
+    series: [
+      {name:"订单量", type:"bar", data: recent.map(x=>x.orders), itemStyle:{color:BLUE, borderRadius:[3,3,0,0]}, barWidth:"50%"},
+      {name:"客单价", type:"line", yAxisIndex:1, data: recent.map(x=>x.aov), smooth:true, lineStyle:{color:AMBER,width:2}, itemStyle:{color:AMBER}}
+    ]
+  });
+
+  // 流量来源
+  c = chart("chartTraffic");
+  const traffic = DATA.traffic.length ? DATA.traffic : [];
+  if (c) c.setOption({
+    tooltip: {trigger:"item", formatter:"{b}: {c}%"},
+    legend:{bottom:0, textStyle:{color:"#6b7280", fontSize:11}},
+    series:[{type:"pie", radius:["42%","68%"], center:["50%","45%"], data: traffic.length ? traffic : [{name:"暂无数据",value:1}],
+      itemStyle:{borderColor:"#fff", borderWidth:2}, label:{color:"#6b7280", fontSize:11}, color:[RED, BLUE, GREEN, AMBER, "#8b5cf6"]}]
+  });
+}
+
+/* ========== 渲染：商品表现 ========== */
+function renderProducts() {
+  const p = DATA.products.slice();
+  const byGmv = p.slice().sort((a,b)=>num(b.gmv)-num(a.gmv)).slice(0,10);
+  const byCtr = p.slice().sort((a,b)=>num(a.ctr)-num(b.ctr)).slice(0,10);
+  let c = chart("chartProdTop");
+  if (c) c.setOption({
+    tooltip: TOOLTIP,
+    grid: {left: 140, right: 60, top: 20, bottom: 30},
+    xAxis: {type:"value", ...AXIS},
+    yAxis: {type:"category", data: byGmv.map(x=>x.name).reverse(), ...AXIS},
+    series: [{type:"bar", data: byGmv.map(x=>x.gmv).reverse(), itemStyle:{color:RED, borderRadius:[0,3,3,0]}, barWidth:"55%", label:{show:true, position:"right", color:"#6b7280", fontSize:11}}]
+  });
+  c = chart("chartProdBottom");
+  if (c) c.setOption({
+    tooltip: TOOLTIP,
+    grid: {left: 140, right: 60, top: 20, bottom: 30},
+    xAxis: {type:"value", ...AXIS},
+    yAxis: {type:"category", data: byCtr.map(x=>x.name).reverse(), ...AXIS},
+    series: [{type:"bar", data: byCtr.map(x=>x.ctr).reverse(), itemStyle:{color:AMBER, borderRadius:[0,3,3,0]}, barWidth:"55%", label:{show:true, position:"right", color:"#6b7280", fontSize:11, formatter: v=>v.value+"%"}}]
+  });
+  c = chart("chartProdScatter");
+  if (c) c.setOption({
+    tooltip: {trigger:"item", formatter: p2 => p2.data && p2.data[3] ? `${p2.data[3]}` : ""},
+    grid: {left: 70, right: 30, top: 30, bottom: 50},
+    xAxis: {type:"value", name:"曝光", ...AXIS},
+    yAxis: {type:"value", name:"点击", ...AXIS},
+    series: [{type:"scatter", data: DATA.products.map(x=>[x.impressions, x.clicks, x.orders, x.name]),
+      symbolSize: v => Math.max(8, Math.min(40, Math.sqrt(num(v[2])||0)*4)),
+      itemStyle:{color:"rgba(255,36,66,.55)"}}]
+  });
+  // 明细表
+  const rows = DATA.products.map(x=>`<tr><td>${x.sku}</td><td>${x.name}</td><td>${fmt(x.impressions)}</td><td>${fmt(x.clicks)}</td><td>${pct2(x.ctr)}</td><td>${fmt(x.orders)}</td><td>¥${fmt(x.gmv)}</td><td>${fmt(x.stock)}</td><td>${x.status||"—"}</td></tr>`).join("");
+  $("prodTable").innerHTML = `<table><thead><tr><th>SKU</th><th>商品</th><th>曝光</th><th>点击</th><th>CTR</th><th>订单</th><th>GMV</th><th>库存</th><th>状态</th></tr></thead><tbody>${rows||'<tr><td colspan="9" class="empty">暂无数据</td></tr>'}</tbody></table>`;
+}
+
+/* ========== 渲染：笔记表现 ========== */
+function renderNotes() {
+  const n = DATA.notes.slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  let c = chart("chartNoteTrend");
+  if (c) c.setOption({
+    tooltip: TOOLTIP,
+    legend:{data:["曝光","阅读"], top:0, textStyle:{color:"#6b7280", fontSize:11}},
+    grid: {left: 80, right: 30, top: 35, bottom: 40},
+    xAxis: {type:"category", data: n.map(x=>x.title.length>10?x.title.slice(0,10)+"…":x.title), ...AXIS},
+    yAxis: {type:"value", ...AXIS},
+    series: [
+      {name:"曝光", type:"bar", data: n.map(x=>x.impressions), itemStyle:{color:"rgba(37,99,235,.55)", borderRadius:[3,3,0,0]}, barWidth:"38%"},
+      {name:"阅读", type:"line", data: n.map(x=>x.reads), smooth:true, lineStyle:{color:RED,width:2}, itemStyle:{color:RED}}
+    ]
+  });
+  c = chart("chartNoteInteract");
+  if (c) c.setOption({
+    tooltip: {trigger:"item", formatter:"{b}: {c}"},
+    legend:{bottom:0, textStyle:{color:"#6b7280", fontSize:11}},
+    series:[{type:"pie", radius:["40%","66%"], center:["50%","45%"],
+      data:[{name:"点赞",value:n.reduce((s,x)=>s+num(x.likes),0)},{name:"收藏",value:n.reduce((s,x)=>s+num(x.collects),0)},
+            {name:"评论",value:n.reduce((s,x)=>s+num(x.comments),0)},{name:"转发",value:n.reduce((s,x)=>s+num(x.shares),0)}],
+      itemStyle:{borderColor:"#fff", borderWidth:2}, label:{color:"#6b7280", fontSize:11}, color:[RED, BLUE, GREEN, AMBER]}]
+  });
+  // 图文 vs 视频
+  const sum = t => n.filter(x=>x.type===t).reduce((s,x)=>s+num(x.reads),0);
+  const cnt = t => n.filter(x=>x.type===t).length;
+  const avgInter = t => { const arr = n.filter(x=>x.type===t); if(!arr.length) return 0; return arr.reduce((s,x)=>s+(num(x.likes)+num(x.collects)+num(x.comments)+num(x.shares))/Math.max(1,num(x.reads)),0)/arr.length; };
+  c = chart("chartNoteType");
+  if (c) c.setOption({
+    tooltip: {trigger:"item", formatter:"{b}: {c}%"},
+    legend:{bottom:0, textStyle:{color:"#6b7280", fontSize:11}},
+    series:[{type:"pie", radius:["42%","68%"], center:["50%","45%"],
+      data:[{name:`图文 (${cnt("图文")}篇)`, value: sum("图文")},{name:`视频 (${cnt("视频")}篇)`, value: sum("视频")}],
+      itemStyle:{borderColor:"#fff", borderWidth:2}, label:{color:"#6b7280", fontSize:11}, color:[RED, BLUE]}]
+  });
+  const rows = DATA.notes.map(x=>{
+    const inter = (num(x.likes)+num(x.collects)+num(x.comments)+num(x.shares)) / Math.max(1,num(x.reads));
+    return `<tr><td>${x.date||"—"}</td><td>${x.title}</td><td>${x.type}</td><td>${fmt(x.impressions)}</td><td>${fmt(x.reads)}</td><td>${(inter*100).toFixed(2)}%</td><td>${x.has_product_card?'<span class="badge low">挂商品</span>':'—'}</td><td>${fmt(x.fans_gained)}</td></tr>`;
+  }).join("");
+  $("noteTable").innerHTML = `<table><thead><tr><th>日期</th><th>标题</th><th>类型</th><th>曝光</th><th>阅读</th><th>互动率</th><th>商品卡片</th><th>涨粉</th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="empty">暂无数据</td></tr>'}</tbody></table>`;
+}
+
+/* ========== 渲染：粉丝账号 ========== */
+function renderFans() {
+  const f = DATA.followers.slice();
+  let c = chart("chartFans");
+  if (c) c.setOption({
+    tooltip: TOOLTIP,
+    legend:{data:["总粉丝","新增粉丝"], top:0, textStyle:{color:"#6b7280", fontSize:11}},
+    grid: {left: 70, right: 30, top: 35, bottom: 30},
+    xAxis: {type:"category", data: f.map(x=>x.date), ...AXIS},
+    yAxis: [{type:"value", ...AXIS}, {type:"value", ...AXIS}],
+    series: [
+      {name:"总粉丝", type:"line", data: f.map(x=>x.followers), smooth:true, lineStyle:{color:RED,width:3}, itemStyle:{color:RED}, areaStyle:{color:"rgba(255,36,66,.10)"}},
+      {name:"新增粉丝", type:"bar", yAxisIndex:1, data: f.map(x=>x.new_fans), itemStyle:{color:BLUE, borderRadius:[3,3,0,0]}, barWidth:"45%"}
+    ]
+  });
+  const gender = DATA.fans_profile.gender || [];
+  const age = DATA.fans_profile.age || [];
+  c = chart("chartFansGender");
+  if (c) c.setOption({
+    tooltip:{trigger:"item", formatter:"{b}: {c}%"},
+    legend:{bottom:0, textStyle:{color:"#6b7280", fontSize:11}},
+    series:[{type:"pie", radius:["42%","68%"], center:["50%","45%"], data: gender.length?gender:[{name:"暂无数据",value:1}],
+      label:{color:"#6b7280", fontSize:11}, itemStyle:{borderColor:"#fff",borderWidth:2}, color:[RED, BLUE, "#9ca3af"]}]
+  });
+  c = chart("chartFansAge");
+  if (c) c.setOption({
+    tooltip:{trigger:"item", formatter:"{b}: {c}%"},
+    legend:{bottom:0, textStyle:{color:"#6b7280", fontSize:11}},
+    series:[{type:"pie", radius:["42%","68%"], center:["50%","45%"], data: age.length?age:[{name:"暂无数据",value:1}],
+      label:{color:"#6b7280", fontSize:11}, itemStyle:{borderColor:"#fff",borderWidth:2}, color:[RED, BLUE, GREEN, AMBER, "#8b5cf6"]}]
+  });
+}
+
+/* ========== 渲染：达人合作 ========== */
+function renderInfluencers() {
+  const stages = ["邀约","回复","寄样","内容","出单"];
+  const counts = stages.map(s => DATA.influencers.filter(x=>x.stage===s).length);
+  let c = chart("chartFunnel");
+  if (c) c.setOption({
+    tooltip: {trigger:"item", formatter:"{b}: {c} 人"},
+    series:[{type:"funnel", left:80, right:80, top:20, bottom:20, minSize:"30%", maxSize:"100%",
+      sort:"descending", gap:4, label:{color:"#1f2329", fontSize:12}, itemStyle:{borderColor:"#fff",borderWidth:2},
+      color:[RED, "#f55d73", "#f98d9d", "#fbb8c3", "#fde3e8"],
+      data: stages.map((s,i)=>({name:s, value:counts[i]})).filter(x=>x.value>0)}]
+  });
+  if (!counts.some(x=>x>0)) {
+    c = chart("chartFunnel");
+    if (c) c.clear();
+  }
+  const rows = DATA.influencers.map(x=>`<tr><td>${x.name}</td><td>${x.platform==="蒲公英"?'<span class="badge low">蒲公英</span>':'<span class="badge mid">私域</span>'}</td><td>${x.stage}</td><td>${x.note_type||"—"}</td><td>¥${fmt(x.gmv)}</td><td>${x.date||"—"}</td></tr>`).join("");
+  $("inflTable").innerHTML = `<table><thead><tr><th>达人</th><th>合作路径</th><th>状态</th><th>笔记形式</th><th>带货GMV</th><th>更新日期</th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="empty">暂无数据</td></tr>'}</tbody></table>`;
+}
+
+/* ========== 渲染：预警中心 ========== */
+function renderAlerts() {
+  const a = DATA.alerts.slice().sort((x,y)=>({高:0,中:1,低:2}[x.level]||3)-({高:0,中:1,低:2}[y.level]||3));
+  if (!a.length) { $("alertList").innerHTML = `<div class="empty">暂无预警 ✓</div>`; return; }
+  $("alertList").innerHTML = a.map(x=>`
+    <div class="alert-item lv-${x.level==="高"?"high":x.level==="中"?"mid":"low"}">
+      <span class="badge ${x.level==="高"?"high":x.level==="中"?"mid":"low"}">${x.level}</span>
+      <div style="flex:1"><div>${x.message}</div><div class="tag">${x.category} · ${x.sku||"—"} · ${x.date||""}</div></div>
+    </div>`).join("");
+}
+
+/* ========== 渲染：数据预览 ========== */
+function renderPreview() {
+  const json = JSON.stringify(DATA, null, 2);
+  $("dataPreview").innerHTML = `<pre style="font-size:12px; line-height:1.6; white-space:pre-wrap; max-height:420px; overflow:auto; background:#fafafa; padding:12px; border-radius:8px;">${json.replace(/</g,"&lt;")}</pre>`;
+}
+
+/* ========== 统一渲染 ========== */
+function renderAll() {
+  setMeta();
+  renderOverview(); renderProducts(); renderNotes(); renderFans(); renderInfluencers(); renderAlerts(); renderPreview();
+  window.dispatchEvent(new Event("resize"));
+}
+
+/* ========== 页签切换 ========== */
+document.querySelectorAll("#tabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#tabs button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("section.tab").forEach(s => s.classList.remove("active"));
+    btn.classList.add("active");
+    $("tab-" + btn.dataset.tab).classList.add("active");
+    setTimeout(() => window.dispatchEvent(new Event("resize")), 30);
+  });
+});
+window.addEventListener("resize", () => { Object.values(charts).forEach(c => { try { c.resize(); } catch(e){} }); });
+
+/* ========== 数据导入 ========== */
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return null;
+  const head = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+  const rows = lines.slice(1).map(l => {
+    const cells = l.split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+    const o = {}; head.forEach((h, i) => o[h] = cells[i] !== undefined ? cells[i] : "");
+    return o;
+  });
+  return rows;
+}
+function guessAndMerge(rows) {
+  const d = normalize(DATA);
+  const first = rows[0] || {};
+  if (first.date !== undefined || first["日期"] !== undefined) {
+    d.daily = rows.map(r => ({date: r.date || r["日期"], gmv: num(r.gmv || r["GMV"]), orders: num(r.orders || r["订单量"]),
+      aov: num(r.aov || r["客单价"]), refund_rate: num(r.refund_rate || r["退款率"]), visitors: num(r.visitors || r["访客数"]),
+      conversion: num(r.conversion || r["转化率"]), followers_gained: num(r.followers_gained || r["涨粉"])})).filter(x=>x.date);
+  } else if (first.sku !== undefined || first["SKU"] !== undefined) {
+    d.products = rows.map(r => ({sku: r.sku || r["SKU"], name: r.name || r["商品名"], impressions: num(r.impressions || r["曝光"]),
+      clicks: num(r.clicks || r["点击"]), ctr: num(r.ctr || r["CTR"]), orders: num(r.orders || r["订单"]),
+      gmv: num(r.gmv || r["GMV"]), stock: num(r.stock || r["库存"]), status: r.status || r["状态"] || "在售"})).filter(x=>x.sku);
+  } else if (first.title !== undefined || first["标题"] !== undefined) {
+    d.notes = rows.map(r => ({note_id: r.note_id || r["笔记ID"] || "", title: r.title || r["标题"], type: r.type || r["类型"] || "图文",
+      impressions: num(r.impressions || r["曝光"]), reads: num(r.reads || r["阅读"]), likes: num(r.likes || r["点赞"]),
+      comments: num(r.comments || r["评论"]), collects: num(r.collects || r["收藏"]), shares: num(r.shares || r["转发"]),
+      fans_gained: num(r.fans_gained || r["涨粉"]), has_product_card: true, date: r.date || r["日期"] || ""})).filter(x=>x.title);
+  } else {
+    return null;
+  }
+  return d;
+}
+$("fileInput").addEventListener("change", ev => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result);
+    try {
+      if (file.name.endsWith(".json")) {
+        DATA = normalize(JSON.parse(text)); renderAll();
+        alert("JSON 导入成功");
+      } else {
+        const rows = parseCSV(text);
+        const merged = guessAndMerge(rows);
+        if (!merged) { alert("CSV 列无法识别：需要 date/gmv 或 sku/name 或 title 等列"); return; }
+        DATA = merged; renderAll();
+        alert("CSV 导入成功（按列名归入经营/商品/笔记）");
+      }
+    } catch (e) { alert("解析失败：" + e.message); }
+  };
+  reader.readAsText(file, "utf-8");
+});
+$("btnSave").addEventListener("click", () => {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(DATA)); alert("已保存到浏览器缓存，下次打开自动加载"); } catch(e) { alert("保存失败：" + e.message); }
+});
+$("btnReset").addEventListener("click", () => {
+  localStorage.removeItem(LS_KEY); DATA = normalize(SAMPLE); renderAll(); setMeta("示例数据"); alert("已恢复示例数据");
+});
+$("btnExport").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "dashboard.json"; a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+initData();
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{
+  "store": { "name": "示例店铺（待更新）", "type": "企业店", "category": "待确认", "updated": "2026-10-02", "data_source": "示例数据" },
+  "daily": [
+    { "date": "2026-09-19", "gmv": 1860, "orders": 46, "aov": 40.4, "refund_rate": 0.04, "visitors": 920, "conversion": 0.05, "followers_gained": 35 },
+    { "date": "2026-09-20", "gmv": 2140, "orders": 52, "aov": 41.2, "refund_rate": 0.03, "visitors": 1080, "conversion": 0.048, "followers_gained": 42 },
+    { "date": "2026-09-21", "gmv": 1980, "orders": 50, "aov": 39.6, "refund_rate": 0.05, "visitors": 1010, "conversion": 0.05, "followers_gained": 38 },
+    { "date": "2026-09-22", "gmv": 2450, "orders": 58, "aov": 42.2, "refund_rate": 0.03, "visitors": 1240, "conversion": 0.047, "followers_gained": 51 },
+    { "date": "2026-09-23", "gmv": 2320, "orders": 55, "aov": 42.2, "refund_rate": 0.04, "visitors": 1180, "conversion": 0.047, "followers_gained": 46 },
+    { "date": "2026-09-24", "gmv": 2780, "orders": 63, "aov": 44.1, "refund_rate": 0.03, "visitors": 1360, "conversion": 0.046, "followers_gained": 58 },
+    { "date": "2026-09-25", "gmv": 3050, "orders": 70, "aov": 43.6, "refund_rate": 0.03, "visitors": 1520, "conversion": 0.046, "followers_gained": 64 },
+    { "date": "2026-09-26", "gmv": 2900, "orders": 66, "aov": 43.9, "refund_rate": 0.04, "visitors": 1480, "conversion": 0.045, "followers_gained": 55 },
+    { "date": "2026-09-27", "gmv": 3420, "orders": 78, "aov": 43.8, "refund_rate": 0.03, "visitors": 1710, "conversion": 0.046, "followers_gained": 72 },
+    { "date": "2026-09-28", "gmv": 3680, "orders": 82, "aov": 44.9, "refund_rate": 0.03, "visitors": 1860, "conversion": 0.044, "followers_gained": 80 },
+    { "date": "2026-09-29", "gmv": 3550, "orders": 79, "aov": 44.9, "refund_rate": 0.04, "visitors": 1800, "conversion": 0.044, "followers_gained": 74 },
+    { "date": "2026-09-30", "gmv": 4020, "orders": 90, "aov": 44.7, "refund_rate": 0.03, "visitors": 2040, "conversion": 0.044, "followers_gained": 88 },
+    { "date": "2026-10-01", "gmv": 4380, "orders": 96, "aov": 45.6, "refund_rate": 0.03, "visitors": 2260, "conversion": 0.042, "followers_gained": 95 }
+  ],
+  "traffic": [
+    { "source": "搜索", "value": 38 }, { "source": "推荐", "value": 34 }, { "source": "关注", "value": 14 }, { "source": "直播", "value": 8 }, { "source": "其他", "value": 6 }
+  ],
+  "products": [
+    { "sku": "sku001", "name": "真丝发圈礼盒", "impressions": 48200, "clicks": 1680, "ctr": 3.49, "orders": 42, "gmv": 1890, "stock": 320, "status": "在售" },
+    { "sku": "sku002", "name": "宋锦葫芦包挂饰", "impressions": 36100, "clicks": 1120, "ctr": 3.10, "orders": 35, "gmv": 1397, "stock": 180, "status": "在售" },
+    { "sku": "sku003", "name": "卡皮巴拉毛绒挂件", "impressions": 29500, "clicks": 880, "ctr": 2.98, "orders": 28, "gmv": 1117, "stock": 60, "status": "在售" },
+    { "sku": "sku004", "name": "手工编织手机挂绳", "impressions": 22800, "clicks": 620, "ctr": 2.72, "orders": 19, "gmv": 570, "stock": 240, "status": "在售" },
+    { "sku": "sku005", "name": "国风刺绣香囊", "impressions": 19600, "clicks": 500, "ctr": 2.55, "orders": 15, "gmv": 525, "stock": 95, "status": "在售" },
+    { "sku": "sku006", "name": "复古陶瓷杯垫套装", "impressions": 17800, "clicks": 430, "ctr": 2.42, "orders": 12, "gmv": 360, "stock": 130, "status": "在售" },
+    { "sku": "sku007", "name": "ins风亚克力收纳盒", "impressions": 15100, "clicks": 340, "ctr": 2.25, "orders": 9, "gmv": 315, "stock": 200, "status": "在售" },
+    { "sku": "sku008", "name": "帆布托特包", "impressions": 13200, "clicks": 280, "ctr": 2.12, "orders": 8, "gmv": 280, "stock": 0, "status": "缺货" },
+    { "sku": "sku009", "name": "珍珠发夹套装", "impressions": 41000, "clicks": 400, "ctr": 0.98, "orders": 6, "gmv": 180, "stock": 150, "status": "在售" },
+    { "sku": "sku010", "name": "羊毛围巾", "impressions": 38000, "clicks": 340, "ctr": 0.89, "orders": 5, "gmv": 249, "stock": 110, "status": "在售" }
+  ],
+  "notes": [
+    { "note_id": "n01", "title": "真丝发圈测评｜通勤三天不炸毛", "type": "图文", "impressions": 128000, "reads": 11800, "likes": 980, "comments": 120, "collects": 860, "shares": 150, "fans_gained": 120, "has_product_card": true, "date": "2026-10-01" },
+    { "note_id": "n02", "title": "给妈妈挑的礼物清单（附店铺）", "type": "图文", "impressions": 86000, "reads": 7600, "likes": 620, "comments": 88, "collects": 540, "shares": 90, "fans_gained": 86, "has_product_card": true, "date": "2026-09-30" },
+    { "note_id": "n03", "title": "开箱！宋锦葫芦包挂饰实拍", "type": "视频", "impressions": 54000, "reads": 4200, "likes": 310, "comments": 46, "collects": 180, "shares": 40, "fans_gained": 42, "has_product_card": true, "date": "2026-09-29" },
+    { "note_id": "n04", "title": "打工人桌面好物合集", "type": "图文", "impressions": 48000, "reads": 3900, "likes": 260, "comments": 35, "collects": 320, "shares": 28, "fans_gained": 35, "has_product_card": false, "date": "2026-09-28" },
+    { "note_id": "n05", "title": "国风香囊真的百搭吗", "type": "视频", "impressions": 31000, "reads": 2100, "likes": 140, "comments": 22, "collects": 95, "shares": 12, "fans_gained": 18, "has_product_card": true, "date": "2026-09-27" }
+  ],
+  "followers": [
+    { "date": "2026-09-19", "followers": 3200, "new_fans": 35 }, { "date": "2026-09-20", "followers": 3242, "new_fans": 42 },
+    { "date": "2026-09-21", "followers": 3280, "new_fans": 38 }, { "date": "2026-09-22", "followers": 3331, "new_fans": 51 },
+    { "date": "2026-09-23", "followers": 3377, "new_fans": 46 }, { "date": "2026-09-24", "followers": 3435, "new_fans": 58 },
+    { "date": "2026-09-25", "followers": 3499, "new_fans": 64 }, { "date": "2026-09-26", "followers": 3554, "new_fans": 55 },
+    { "date": "2026-09-27", "followers": 3626, "new_fans": 72 }, { "date": "2026-09-28", "followers": 3706, "new_fans": 80 },
+    { "date": "2026-09-29", "followers": 3780, "new_fans": 74 }, { "date": "2026-09-30", "followers": 3868, "new_fans": 88 },
+    { "date": "2026-10-01", "followers": 3963, "new_fans": 95 }
+  ],
+  "traffic_note": "流量来源为可选字段，按后台实际口径填写",
+  "fans_profile": {
+    "gender": [ { "name": "女", "value": 72 }, { "name": "男", "value": 26 }, { "name": "未知", "value": 2 } ],
+    "age": [ { "name": "18-24", "value": 28 }, { "name": "25-34", "value": 45 }, { "name": "35-44", "value": 18 }, { "name": "45+", "value": 9 } ]
+  },
+  "influencers": [
+    { "name": "达人A", "platform": "蒲公英", "stage": "出单", "note_type": "报备", "gmv": 890, "date": "2026-10-01" },
+    { "name": "达人B", "platform": "蒲公英", "stage": "内容", "note_type": "报备", "gmv": 0, "date": "2026-10-01" },
+    { "name": "达人C", "platform": "私域", "stage": "寄样", "note_type": "非报备", "gmv": 0, "date": "2026-09-30" },
+    { "name": "达人D", "platform": "蒲公英", "stage": "回复", "note_type": "报备", "gmv": 0, "date": "2026-09-29" },
+    { "name": "达人E", "platform": "私域", "stage": "邀约", "note_type": "非报备", "gmv": 0, "date": "2026-09-29" }
+  ],
+  "alerts": [
+    { "level": "高", "category": "CTR", "message": "sku009 珍珠发夹套装 曝光 4.1 万、CTR 0.98%（<1%）→ 美工出主图优化", "sku": "sku009", "date": "2026-10-01" },
+    { "level": "高", "category": "库存", "message": "sku008 帆布托特包 已缺货 → 运营出补货清单", "sku": "sku008", "date": "2026-10-01" },
+    { "level": "中", "category": "笔记", "message": "笔记 n05 阅读率 6.8%（低于均值）→ 封面/标题优化", "sku": "", "date": "2026-10-01" },
+    { "level": "低", "category": "粉丝", "message": "近 7 日涨粉趋稳，建议运营复盘内容节奏", "sku": "", "date": "2026-10-01" }
+  ]
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书小店 AI 员工团队 · 工作流总览</title>
+<style>
+  :root { --red:#FF2442; --red-soft:#FFF0F2; --ink:#1f2329; --gray:#6b7280; --line:#e5e7eb; --bg:#f6f7f9; --card:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:20px 28px; }
+  header h1 { font-size:22px; color:var(--red); }
+  header .sub { color:var(--gray); font-size:13px; margin-top:6px; }
+  main { max-width:1180px; margin:0 auto; padding:24px 28px; }
+  h2 { font-size:17px; margin:28px 0 12px; padding-left:10px; border-left:4px solid var(--red); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
+  .org { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .org .boss { background:var(--red-soft); border:1px solid var(--red); color:var(--red); font-weight:700; padding:8px 20px; border-radius:8px; }
+  .org .line { width:2px; height:18px; background:var(--line); }
+  .org .manager { background:var(--card); border:2px solid var(--red); padding:10px 18px; border-radius:8px; text-align:center; font-weight:600; }
+  .org .staff-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:4px; }
+  .org .staff { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 14px; width:230px; font-size:13px; }
+  .org .staff b { display:block; color:var(--ink); font-size:14px; margin-bottom:4px; }
+  .org .staff span { color:var(--gray); }
+  .sop { list-style:none; counter-reset:sop; }
+  .sop li { counter-increment:sop; position:relative; padding:12px 14px 12px 48px; background:var(--card); border:1px solid var(--line); border-radius:8px; margin-bottom:8px; font-size:14px; }
+  .sop li::before { content:counter(sop); position:absolute; left:14px; top:12px; width:24px; height:24px; border-radius:50%; background:var(--red); color:#fff; text-align:center; line-height:24px; font-size:13px; font-weight:700; }
+  .sop li b { color:var(--red); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { padding:8px 10px; border-bottom:1px solid var(--line); text-align:left; }
+  th { color:var(--gray); background:#fafafa; }
+  code { background:#f3f4f6; padding:1px 6px; border-radius:4px; font-size:12px; }
+  .tag { display:inline-block; background:var(--red-soft); color:var(--red); border-radius:10px; padding:1px 8px; font-size:12px; margin-right:4px; }
+  .flow { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 20px; }
+  .flow .steps { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:13px; }
+  .flow .step { background:#fafafa; border:1px solid var(--line); border-radius:8px; padding:6px 10px; }
+  .flow .arrow { color:var(--gray); }
+  .link { color:var(--red); text-decoration:none; font-weight:600; }
+  .link:hover { text-decoration:underline; }
+  footer { color:var(--gray); font-size:12px; text-align:center; padding:24px 0 40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>小红书小店 AI 员工团队 · 工作流总览</h1>
+  <div class="sub">工作区：D:\xiaohongshu-team ｜ 入口技能：xhs-team-manager（豆包） ｜ 更新：2026-10-02</div>
+</header>
+<main>
+
+<h2>一、团队架构</h2>
+<div class="card org">
+  <div class="boss">老板（只对 1 号店长下指令）</div>
+  <div class="line"></div>
+  <div class="manager">1 号 店长<br><span style="font-weight:400;color:var(--gray);font-size:12px;">整体运营 · 活动策划 · 任务分配 · 数据输出 · 账号运营决策</span></div>
+  <div class="line"></div>
+  <div class="staff-row">
+    <div class="staff"><b>2 号 运营</b><span>商品运营 · 上架 · 笔记撰写发布 · 粉丝用户运营 · 协助活动与数据</span></div>
+    <div class="staff"><b>3 号 美工</b><span>图片制作输出 · 主图/封面 CTR 分析优化 · 账号宣传图</span></div>
+    <div class="staff"><b>4 号 客服</b><span>客户接待回复 · 达人邀约跟踪（蒲公英优先）· 评论舆情</span></div>
+  </div>
+</div>
+
+<h2>二、每日运营 SOP（完整覆盖）</h2>
+<ol class="sop">
+  <li><b>第 0 步 登录检查</b>（店长）：千帆商家后台登录态检查，失效提醒老板扫码。</li>
+  <li><b>早盘数据看板</b>（店长+运营）：GMV / 订单 / 客单价 / 退款 / 访客 / 转化 / 笔记数据 / 涨粉 → 定 P0/P1/P2 → 更新 data/dashboard.json。</li>
+  <li><b>商品运营</b>（运营）：上架与审核跟进、Listing 优化、库存补货、选品。</li>
+  <li><b>内容运营</b>（运营）：按内容日历撰写发布笔记（图文/视频）、关键词布局、话题标签、商品卡片、发布后评论区引导、薯条投放建议。</li>
+  <li><b>活动策划</b>（店长+运营）：平台大促日历、优惠券/满减、直播、话题活动 → 拆任务给美工/运营/客服。</li>
+  <li><b>美工</b>：商品图/笔记封面/活动海报/账号宣传图 + 主图与封面 CTR 诊断优化。</li>
+  <li><b>客服与达人</b>（客服）：千帆消息清零、差评与评论舆情、蒲公英报备合作（优先）+ 私域邀约、寄样审批跟进。</li>
+  <li><b>晚报日报</b>（店长）：汇总完成项 / 关键数据 / 待拍板清单 / 明日计划 → 同步数据分析平台。</li>
+</ol>
+
+<h2>三、技能映射（员工 → 可调取技能）</h2>
+<div class="card">
+<table>
+  <thead><tr><th>员工</th><th>技能（豆包技能库，按名调取）</th><th>触发场景</th></tr></thead>
+  <tbody>
+    <tr><td>1 店长</td><td><code>xhs-team-manager</code>（入口）<br><code>xhs-task-dispatcher</code> · <code>xhs-store-dashboard</code> · <code>xhs-campaign-planner</code> · <code>xhs-qianfan-web</code></td><td>开工指令 / 派活 / 数据看板 / 活动 / 千帆登录</td></tr>
+    <tr><td>2 运营</td><td><code>xhs-product-listing</code> · <code>xhs-product-picker</code> · <code>xhs-note-publishing</code> · <code>xhs-fan-operations</code></td><td>上架 / 选品 / 笔记发布 / 粉丝运营</td></tr>
+    <tr><td>3 美工</td><td><code>xhs-image-production</code> · <code>xhs-main-image-ctr</code></td><td>出图 / CTR 分析优化</td></tr>
+    <tr><td>4 客服</td><td><code>xhs-customer-reply</code> · <code>xhs-influencer-outreach</code></td><td>客服回复 / 达人邀约（蒲公英优先）</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>四、任务与数据流转</h2>
+<div class="flow">
+  <div class="steps">
+    <span class="step">老板指令</span><span class="arrow">→</span>
+    <span class="step">店长拆解</span><span class="arrow">→</span>
+    <span class="step">任务卡 <code>tasks/inbox/&lt;角色&gt;/</code></span><span class="arrow">→</span>
+    <span class="step">员工执行（单会话全包）</span><span class="arrow">→</span>
+    <span class="step">店长验收</span><span class="arrow">→</span>
+    <span class="step">归档 <code>tasks/archive/</code></span><span class="arrow">→</span>
+    <span class="step">日报 + dashboard.json</span>
+  </div>
+  <p style="color:var(--gray);font-size:13px;margin-top:12px;">数据来源：千帆商家后台浏览器直连（网页读取/导出 CSV → <code>data/manual/</code>）；内容数据来自专业号后台；达人数据来自蒲公英。所有数据标注口径。</p>
+</div>
+
+<h2>五、数据分析平台</h2>
+<div class="card">
+  <p>7 页签看板：经营总览 / 商品表现 / 笔记表现 / 粉丝账号 / 达人合作 / 预警中心 / 数据导入。<br>
+  打开方式：<a class="link" href="./数据分析平台.html">打开数据分析平台</a>（推荐先在团队目录运行 <code>python serve.py</code>，自动读取 <code>data/dashboard.json</code>；也可直接双击本文件用示例/导入数据）。</p>
+</div>
+
+<h2>六、合规红线速记</h2>
+<div class="card">
+  <span class="tag">禁绝对化用语</span><span class="tag">禁虚假功效</span><span class="tag">禁站外导流</span><span class="tag">报备优先</span><span class="tag">版权可商用</span><span class="tag">不泄露隐私</span>
+  <p style="color:var(--gray);font-size:13px;margin-top:10px;">详见 00-团队手册.md 第 7 节。</p>
+</div>
+
+</main>
+<footer>小红书小店 AI 员工团队 · D:\xiaohongshu-team</footer>
+</body>
+</html>

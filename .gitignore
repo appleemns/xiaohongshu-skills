@@ -1,0 +1,17 @@
+# 运行时数据（不入库）
+data/manual/
+data/orders/
+data/analytics/
+
+# 真实配置（含密钥，不入库）
+api/config.json
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+Thumbs.db
+.DS_Store

@@ -1,0 +1,22 @@
+{
+  "open_api": {
+    "enabled": false,
+    "base_url": "https://open.xiaohongshu.com",
+    "app_id": "",
+    "app_secret": "",
+    "redirect_uri": "",
+    "note": "官方开放平台 API 为可选升级。未开通前保持 enabled=false，数据走千帆浏览器直连（扫码登录）"
+  },
+  "store": {
+    "name": "",
+    "type": "企业店",
+    "category": "",
+    "qianfan_url": "https://seller.xiaohongshu.com",
+    "pgy_url": "https://pgy.xiaohongshu.com"
+  },
+  "import": {
+    "manual_dir": "data/manual",
+    "orders_dir": "data/orders",
+    "analytics_dir": "data/analytics"
+  }
+}
